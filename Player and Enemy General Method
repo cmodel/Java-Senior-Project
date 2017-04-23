@@ -1,0 +1,69 @@
+//Player and Enemy Classes
+
+public class Player {
+    private int lev;
+    private int exp;
+    private int hp;
+    private int mp;
+    private int str;
+    private int intel;
+    private int agi;
+    private int sp;
+    private int hpregen;
+    private int mpregen;
+    private int sf;
+    private int x;
+    private int y;
+    private int dmg;
+    private int movenum;
+    public String movename;
+
+    public Player(int experience, int strength, int intelligence, int agility, int special, int healthregen, int manaregen, int factor, int xcoord, int ycoord, int move ) {
+        exp = experience;
+        lev = exp/100;
+        str = strength;
+        intel = intelligence;
+        agi = agility;
+        sp = special;
+        sf = 1+sp/100
+        hpregen = healthregen;
+        mpregen = manaregen;
+        hp = (lev+str)*0.5;
+        mp = (lev+intel)*0.5;
+        x = xcoord;
+        y = ycoord;
+        movenum = move;
+        movename = movenum.getName();
+    }
+    public Enemy(int health, int mana, int healthregen, int manaregen, int xcoord, int ycoord, int damage) {
+        hpregen = healthregen;
+        mpregen = manaregen;
+        hp = health;
+        mp = mana;
+        x = xcoord;
+        y = ycoord;
+        dmg = damage;
+    }
+    public int getHP () {
+        return hp;
+    }
+    public int getMP () {
+        return mp;
+    }
+    public int getX () {
+        return x;
+    }
+    public int getY () {
+        return y;
+    }
+    public int getSF () {
+        return hp;
+    }
+    public void attack () {
+        System.out.println("You have used " + movename + ".");
+    }
+    public void attacked () {
+        System.out.println("You have been hit by an enemy and taken " + dmg + "damage.");
+    }
+}
+
