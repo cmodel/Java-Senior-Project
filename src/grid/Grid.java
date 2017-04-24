@@ -6,12 +6,14 @@ package grid;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -33,6 +35,27 @@ public class Grid extends Application {
         character.setTranslateY(height/2-35);
         character.setTranslateX(width/2-25);
         root.getChildren().add(character);
+        
+        Image grass = new Image(getClass().getResourceAsStream("/images/grass.png"), 50, 70, false, false);
+        
+        Image tallGrass = new Image(getClass().getResourceAsStream("/images/tallgrass.png"), 50, 70, false, false);
+        
+        Image path = new Image(getClass().getResourceAsStream("/images/path.png"), 50, 70, false, false);
+        
+        /*
+        Rectangle2D viewport1 = new Rectangle2D(275, 225 , 450 , 350);
+        int width = 10;
+        int length = 5;
+        for(int y = 0; y < length; y++){
+            for(int x = 0; x < width; x++){
+                ImageView tileset = new ImageView(path);
+                tileset.setViewport(viewport1);
+
+                GridPane.setConstraints(tileset,x,y);
+                root.getChildren().add(tileset);
+            }
+        }
+        */
         
         Scene game = new Scene (root);
         stage.setTitle("BattleQuest");
