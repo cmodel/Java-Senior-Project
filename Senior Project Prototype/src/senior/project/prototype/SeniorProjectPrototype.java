@@ -8,12 +8,14 @@ package senior.project.prototype;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import senior.project.prototype.abilities.Fireball;
 
 /**
  *
@@ -25,66 +27,84 @@ public class SeniorProjectPrototype extends Application {
     public void start(Stage primaryStage) 
     {
         //initializes pane
-        Pane root = new Pane();
+        //Pane root = new Pane();
         
-        //Initializes map
-        Map testMap = new Map(root,10,10);
+        
         
         //Initializes Player
-        Player playerTest = new Player(root,0,0);
+        Player playerTest = new Player(Holder.getPane(),0,0);
+        Player targetTest = new Player(Holder.getPane(),5,5);
+        
+        Holder.addPlayer(playerTest);
+        Holder.addPlayer(targetTest);
         
         //Generates Scene
-        Scene scene = new Scene(root, 500, 500);
-        primaryStage.setScene(scene);
+        primaryStage.setScene(Holder.getScene());
         primaryStage.show();
         
         //Button to activate move toggle
-        Button move = new Button();
-        move.setTranslateX(0);
-        move.setTranslateY(0);
-        move.setText("Move");
-        root.getChildren().add(move);
+        Button moveButton = new Button();
+        moveButton.setTranslateX(0);
+        moveButton.setTranslateY(0);
+        moveButton.setText("Move");
+        Holder.getPane().getChildren().add(moveButton);
+        
+        Button fireButton = new Button();
+        fireButton.setTranslateX(30);
+        fireButton.setTranslateY(0);
+        fireButton.setText("Firebal");
+        Holder.getPane().getChildren().add(fireButton);
+        
+        Fireball testBall = new Fireball();
+
+        fireButton.setOnMouseClicked(new EventHandler<MouseEvent>()
+        {
+            public void handle(MouseEvent e)
+            {
+                testBall.target(playerTest);
+            }
+        });
+        
+        
+        //Event handler
+        EventHandler mouseMoveClick = new EventHandler<MouseEvent>()
+        {
+            public void handle(MouseEvent e)
+            {
+                System.out.println(e.getSceneX()+"\n"+e.getSceneY());
+
+                //Checks if a toggled tile has been clicked. See comments on Map.move() for more details on that function
+                if(Holder.getMap().move(playerTest, e))
+                {
+                    //After moving clears tiles and resets player moves
+                    Holder.getMap().resetToggleTile();
+                    playerTest.resetMoves();
+                    
+                    Holder.getPane().setOnMouseClicked(null);
+                }
+            }
+        };
         
         //Listener for move toggle button
         //Will probably be moved to a "buttons" class whenever we get that far
-        move.setOnMouseClicked(new EventHandler<MouseEvent>(){
-            //A dummy boolean that I used to play around with closing the mouse click listener when the move button is not pressed
-            //May be abolished at some point
-            boolean moving = true;
+        moveButton.setOnMouseClicked(new EventHandler<MouseEvent>(){
             public void handle(MouseEvent e)
             {
                 //Checks if toggle is active on the map
-                if (testMap.getToggled())
+                if (Holder.getMap().getToggled())
                 {
                     //Clears toggle
-                    testMap.resetToggleTile();
+                    Holder.getMap().resetToggleTile();
                     //Resets move counter on player
-                    playerTest.resetMoves();
-                    moving = false;
+                    playerTest.resetMoves(); 
                 }
                 else
                 {
-                    moving = true;
-                    
                     //Creates grid of tiles where the player can move to
-                    testMap.tileToggle(playerTest,playerTest.getMoves()-1);
+                    Holder.getMap().tileToggle(playerTest,playerTest.getMoves()-1,"select");
                     
                     //Listens for a click on the map
-                    scene.setOnMouseClicked(new EventHandler<MouseEvent>(){
-                        public void handle(MouseEvent e)
-                        {
-                            System.out.println(e.getSceneX()+"\n"+e.getSceneY());
-                            
-                            //Checks if a toggled tile has been clicked. See comments on Map.move() for more details on that function
-                            if(moving = true && testMap.move(playerTest, e))
-                            {
-                                //After moving clears tiles and resets player moves
-                                testMap.resetToggleTile();
-                                playerTest.resetMoves();
-                            }
-                        }
-                    });
-                    moving = false;
+                    Holder.getPane().setOnMouseClicked(mouseMoveClick);
                 }
             }
         });

@@ -21,8 +21,9 @@ public class Tile
     public ImageView tile = new ImageView();
     
     //Images that store both the tile's toggled and untoggled textures respectively
-    public Image tileToggled;
+    public Image tileSelect;
     public Image tileReg;
+    public Image tileTarget;
     
     //Stores the name of the tile for furture use
     String type;
@@ -31,31 +32,47 @@ public class Tile
     private boolean isPassable;
     
     //Stores whether the tile is currently "selected" or not
-    private boolean toggled = false;
+    private boolean isSelected = false;
+    
+    //Stores whether the tile is currently "targeted" or not
+    private boolean isTargeted = false;
+    
+    int xCoord;
+    int yCoord;
+    
+    //Trying again
+    int lastX;
+    int lastY;
+    boolean original = true;
     
     
     public Tile(String type, Pane root, double x, double y)
     {
+        xCoord = (int)(x / Holder.getScaler());
+        yCoord = (int)(y / Holder.getScaler());
+        
         //Intializes tile based on respective type
         switch (type)
         {
             case "Grass 1": tileReg = new Image("/TileImages/Grass 1.png");
             tile.setImage(tileReg);
-            tileToggled = new Image("/TileImages/Grass 1 Selected.png");
+            tileSelect = new Image("/TileImages/Grass 1 Selected.png");
+            tileTarget = new Image("/TileImages/Grass 1 Targeted.png");
             isPassable = true;
             this.type = type;
             break;
             
             case "Grass 2": tileReg = new Image("/TileImages/Grass 2.png");
             tile.setImage(tileReg);
-            tileToggled = new Image("/TileImages/Grass 2 Selected.png");
+            tileSelect = new Image("/TileImages/Grass 2 Selected.png");
+            tileTarget = new Image("/TileImages/Grass 2 Targeted.png");
             isPassable = true;
             this.type = type;
             break;
             
             case "Bolder 1": tileReg = new Image("/TileImages/Bolder 1.png");
             tile.setImage(tileReg);
-            tileToggled = new Image("/TileImages/Bolder 1 Selected.png");
+            tileSelect = new Image("/TileImages/Bolder 1 Selected.png");
             isPassable = false;
             this.type = type;
             break;
@@ -79,6 +96,15 @@ public class Tile
         
     }
     
+    public int getXCoord()
+    {
+        return xCoord;
+    }
+    
+    public int getYCoord()
+    {
+        return yCoord;
+    }
     //Checks if a mouse event is within the x, y bounds of the tile
     //This is calculated by seeing if 0 < tile coord - event coord > 50 (the tile size)
     public boolean isClicked(MouseEvent e)
@@ -92,17 +118,22 @@ public class Tile
         return isPassable;
     }
     
-    //Clears selection box around tile
-    public void resetToggle()
+    //Clears selection or target box around tile
+    public void resetTile()
     {
         tile.setImage(tileReg);
-        toggled = false;
+        isSelected = false;
     }
     
     //Checks whether the tile is toggled
-    public boolean isToggled()
+    public boolean isSelected()
     {
-        return toggled;
+        return isSelected;
+    }
+    
+    public boolean isTargeted()
+    {
+        return isTargeted;
     }
     
     //Returns tile width
@@ -112,17 +143,38 @@ public class Tile
     }
     
     //Toggles tile selection
-    public void toggle()
+    public void toggle(String type)
     {
-        if (toggled == false)
+        switch (type)
         {
-            tile.setImage(tileToggled);
-            toggled = true;
-        }
-        else
-        {
-            tile.setImage(tileReg);
-            toggled = false;
+            case "select":
+            if (isSelected == false)
+            {
+                tile.setImage(tileSelect);
+                isSelected = true;
+            }
+            else
+            {
+                tile.setImage(tileReg);
+                isSelected = false;
+            }
+            break;
+            
+            case "target":
+            if (isSelected == false)
+            {
+                tile.setImage(tileTarget);
+                isSelected = true;
+            }
+            else
+            {
+                tile.setImage(tileReg);
+                isSelected = false;
+            }
+            break;
+            
+            default: System.out.println("Toggle switch was given incorrect parameters");
+            break;
         }
     }
     
@@ -137,4 +189,37 @@ public class Tile
     {
         return tile.getY()+tile.getTranslateY();
     }
+    
+    public int getLastX()
+    {
+        return lastX;
+    }
+    
+    public int getLastY()
+    {
+        return lastY;
+    }
+    
+    public void setLastCoord (int x, int y)
+    {
+        lastX = x;
+        lastY = y;
+        
+        Text dummy =  new Text(x + "," + y);
+        dummy.setX(getX());
+        dummy.setY(getY()+20);
+        
+        Holder.getPane().getChildren().add(dummy);
+    }
+    
+    public boolean isOriginal()
+    {
+        return original;
+    }
+    
+    public void setOrigianl(boolean x)
+    {
+        original = x;
+    }
+    
 }

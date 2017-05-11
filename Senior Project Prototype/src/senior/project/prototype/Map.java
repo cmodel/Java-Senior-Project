@@ -50,7 +50,7 @@ public class Map
     //Toggles a specific tile based on x,y GRID position
     public void toggleTile(int x, int y)
     {
-        tileArray[x][y].toggle();
+        tileArray[x][y].toggle("select");
     }
     
     //Clears selection of any tiles
@@ -61,10 +61,26 @@ public class Map
             for (int k = 0; k < tileArray[0].length; k++)
             {
                 //Resets selection of each tile in the map
-                tileArray[i][k].resetToggle();
+                tileArray[i][k].resetTile();
             }
         }
         toggled = false;
+    }
+    
+    public Tile target(MouseEvent e)
+    {
+        for (int i = 0; i<tileArray.length; i++)
+        {
+            for (int k = 0; k<tileArray[0].length; k++)
+            {
+                //Checks whether a specific tile is both clicked and selected
+                if (tileArray[i][k].isClicked(e) && tileArray[i][k].isSelected())
+                {
+                    return tileArray[i][k];
+                }
+            }
+        }
+        return null;
     }
     
     //Moves a player to a tile that is in the move selection box. Returns true is player is moved, otherwise returns false
@@ -75,11 +91,19 @@ public class Map
             for (int k = 0; k<tileArray[0].length; k++)
             {
                 //Checks whether a specific tile is both clicked and selected
-                if (tileArray[i][k].isClicked(e) && tileArray[i][k].isToggled())
+                if (tileArray[i][k].isClicked(e) && tileArray[i][k].isSelected())
                 {
-                    //Moves player
-                    player.setX(i);
-                    player.setY(k);
+                    //Moves player           
+                    whateves (i,k,player);
+                    
+                    for (int a = 0; i<tileArray.length; i++)
+                    {
+                        for (int b = 0; k<tileArray[0].length; k++)
+                        {
+                            tileArray[a][b].setOrigianl(true);
+                        }
+                    }
+                    
                     return true;
                 }
             }
@@ -87,8 +111,24 @@ public class Map
         return false;
     }
     
+    public void whateves(int x, int y, Player player)
+    {
+        System.out.println(tileArray[x][y].isOriginal());
+        if (tileArray[x][y].isOriginal())
+        {
+            System.out.println("I'M TRYING");
+            player.prominade(x,y);
+        }
+        else
+        {
+            System.out.println("I'm going to "+tileArray[x][y].getLastX()+", "+tileArray[x][y].getLastY());
+            player.prominade(tileArray[x][y].getLastX(), tileArray[x][y].getLastY());
+            whateves(tileArray[x][y].getLastX(), tileArray[x][y].getLastY(),player);
+        }
+    }
+    
     //Toggles tile selection for each tile adjacent to the player
-    public void tileToggle(Player player, int range)
+    public void tileToggle(Player player, int range, String type)
     {
         //Toggles tile selections to the right and left of the player
         for (int i = player.getX()-1; i <= player.getX()+1; i++)
@@ -98,7 +138,11 @@ public class Map
                 if (tileArray[i][player.getY()].isPassable())
                 {
                     System.out.println(i+","+player.getY());
-                    tileArray[i][player.getY()].toggle();
+                    tileArray[i][player.getY()].toggle(type);
+                    
+                    //Trying again
+                    tileArray[i][player.getY()].setLastCoord(player.getX(),player.getY());
+                    tileArray[i][player.getY()].setOrigianl(false);
                 }
             }
             catch(java.lang.ArrayIndexOutOfBoundsException e)
@@ -115,7 +159,11 @@ public class Map
                 if (tileArray[player.getX()][k].isPassable())
                 {
                     System.out.println(player.getX()+","+k);
-                    tileArray[player.getX()][k].toggle();
+                    tileArray[player.getX()][k].toggle(type);
+                    
+                    //Trying again
+                    tileArray[player.getX()][k].setLastCoord(player.getX(),player.getY());
+                    tileArray[player.getX()][k].setOrigianl(false);
                 }
             }
             catch(java.lang.ArrayIndexOutOfBoundsException e)
@@ -130,7 +178,7 @@ public class Map
             try{
                 if (tileArray [i][player.getY()].isPassable())
                 {
-                    continueToggle(i,player.getY(),range);
+                    continueToggle(i,player.getY(),range,type);
                 }
             }
             catch (java.lang.ArrayIndexOutOfBoundsException e){}
@@ -142,7 +190,7 @@ public class Map
             try{
                 if (tileArray [player.getX()][k].isPassable())
                 {
-                    continueToggle(player.getX(),k,range);
+                    continueToggle(player.getX(),k,range,type);
                 }
             }
             catch (java.lang.ArrayIndexOutOfBoundsException e){}
@@ -150,9 +198,11 @@ public class Map
         
         //Sets toggled to true to show that tiles are selected on the map
         toggled = true;
+        
+        tileArray[player.getX()][player.getY()].setOrigianl(true);
     }
     
-    private void continueToggle(int x, int y, int steps)
+    private void continueToggle(int x, int y, int steps, String type)
     {
         System.out.println("Toggle centered at "+x+", "+y);
         
@@ -164,10 +214,14 @@ public class Map
             {
                 try
                 {
-                    if (tileArray[i][y].isPassable() && !tileArray[i][y].isToggled())
+                    if (tileArray[i][y].isPassable() && !tileArray[i][y].isSelected())
                     {
-                        tileArray[i][y].toggle();
+                        tileArray[i][y].toggle(type);
                         System.out.println(i + "," + y);
+                        
+                        //Trying again
+                        tileArray[i][y].setLastCoord(x, y);
+                        tileArray[i][y].setOrigianl(false);
                     }
                 }
                 catch(java.lang.ArrayIndexOutOfBoundsException e)
@@ -179,10 +233,14 @@ public class Map
             {
                 try
                 {
-                    if (tileArray[x][k].isPassable() && !tileArray[x][k].isToggled())
+                    if (tileArray[x][k].isPassable() && !tileArray[x][k].isSelected())
                     {
                         System.out.println(x + "," + k);
-                        tileArray[x][k].toggle();
+                        tileArray[x][k].toggle(type);
+                        
+                        //Trying again
+                        tileArray[x][k].setLastCoord(x, y);
+                        tileArray[x][k].setOrigianl(false);
                     }
                 }
                 catch(java.lang.ArrayIndexOutOfBoundsException e)
@@ -196,7 +254,7 @@ public class Map
                 try{
                     if (tileArray [i][y].isPassable())
                     {
-                        continueToggle(i,y,steps-1);
+                        continueToggle(i,y,steps-1,type);
                     }
                 }
                 catch (java.lang.ArrayIndexOutOfBoundsException e){}
@@ -206,7 +264,7 @@ public class Map
                 try{
                     if (tileArray [x][k].isPassable())
                     {
-                        continueToggle(x,k,steps-1);
+                        continueToggle(x,k,steps-1,type);
                     }
                 }
                 catch (java.lang.ArrayIndexOutOfBoundsException e){}
@@ -219,4 +277,11 @@ public class Map
     {
         return toggled;
     }
+    
+    public Tile getTile (int x, int y)
+    {
+        return tileArray[x][y];
+    }
+
+
 }

@@ -5,6 +5,7 @@
  */
 package senior.project.prototype;
 
+import javafx.animation.AnimationTimer;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -15,6 +16,8 @@ import javafx.scene.layout.Pane;
  */
 public class Player 
 {
+    AnimationTimer walk;
+    
     //Arbitrary player health
     int health = 50;
     
@@ -47,8 +50,52 @@ public class Player
         root.getChildren().add(player);
         
         //Sets maxMoves to an arbitrary value of 2
-        maxMoves = 2;
+        maxMoves = 4;
         moves = maxMoves;
+    }
+    
+    public void prominade(int x, int y)
+    {
+        
+        walk = new AnimationTimer(){
+            public void handle(long now)
+            {
+                if (player.getTranslateX()/50 == x && player.getTranslateY()/50 == y)
+                {
+                    System.out.println("yo");
+                    setX(x);
+                    setY(y);
+                    walk.stop();
+                    
+                }
+                else if (player.getTranslateX()/50 < x)
+                {
+                    player.setTranslateX(player.getTranslateX()+1);
+                    System.out.println(1);
+                }
+                else if (player.getTranslateX()/50 > x)
+                {
+                    player.setTranslateX(player.getTranslateX()-1);
+                    System.out.println(2);
+                }
+                else if (player.getTranslateY()/50 < y)
+                {
+                    player.setTranslateY(player.getTranslateY()+1);
+                    System.out.println(3);
+                }
+                else if (player.getTranslateY()/50 > y)
+                {
+                    player.setTranslateY(player.getTranslateY()-1);
+                    System.out.println(4);
+                }
+                else
+                {
+                    System.out.println("Your walking animation Timer is screwing up");
+                }
+                
+            }
+        };
+        walk.start();
     }
     
     //Subtracts one from moves
@@ -87,6 +134,11 @@ public class Player
         xCoord = x;
         player.setTranslateX(50*x);
         player.toFront();
+    }
+    
+    public void removeHealth(int damage)
+    {
+        health = health - damage;
     }
     
     //Sets y relative to map grid AND moves ImageView to correct pixle
